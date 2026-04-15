@@ -8,31 +8,21 @@ import plotly.express as px
 st.set_page_config(layout="wide", page_title="Dashboard Analisis Profile Sender ID (Telkomsel)")
 
 st.title("📊 Dashboard Analisis Profile Sender ID (Telkomsel)")
-st.markdown("Unggah file Anda untuk memulai analisis.")
+st.markdown("Data otomatis diambil dari repository GitHub. Mohon tunggu beberapa saat untuk memuat data.")
 
 # ==============================
-# LOAD DATA (CACHED)
+# LOAD DATA FROM GITHUB (CACHED)
 # ==============================
 @st.cache_data
-def load_data(file):
-    if file.name.endswith('.csv'):
-        return pd.read_csv(file)
-    return pd.read_excel(file)
-
-# ==============================
-# FILE UPLOADER
-# ==============================
-uploaded_file = st.file_uploader("Pilih file CSV atau Excel", type=['csv', 'xlsx'])
-
-if uploaded_file is None:
-    st.info("Silakan unggah file data untuk melanjutkan.")
-    st.stop()
+def load_data():
+    url = "https://raw.githubusercontent.com/helmimauludii/SID-Profile-Analysis/main/Tsel%20SID%202025.xlsx"
+    return pd.read_excel(url)
 
 # ==============================
 # DATA PROCESSING
 # ==============================
 try:
-    df = load_data(uploaded_file)
+    df = load_data()
 
     # --- VALIDASI KOLOM ---
     required_cols = ['Time Stamp', 'Sender ID', 'Sent Messages', 'Delivered Messages']
@@ -57,11 +47,11 @@ try:
     # ==============================
     # MONTH TRANSFORMATION
     # ==============================
-    df['Month'] = df['Time Stamp'].dt.to_period('M')              # untuk sorting & logic
-    df['Month_str'] = df['Time Stamp'].dt.strftime('%B %Y')       # untuk display
+    df['Month'] = df['Time Stamp'].dt.to_period('M')
+    df['Month_str'] = df['Time Stamp'].dt.strftime('%B %Y')
 
 except Exception as e:
-    st.error(f"Terjadi kesalahan saat memproses file: {e}")
+    st.error(f"Terjadi kesalahan saat memproses data: {e}")
     st.stop()
 
 # ==============================
@@ -211,9 +201,8 @@ if show_button:
 
             df_trend['Delivery Rate'] = df_trend['Delivery Rate'].round(2)
 
-            # mapping ke string biar enak di chart
-            df_trend['Month_str'] = df_trend['Month'].astype(str)
             df_trend = df_trend.sort_values('Month')
+            df_trend['Month_str'] = df_trend['Month'].astype(str)
 
             y_min = max(0, df_trend['Delivery Rate'].min() - 5) if not df_trend.empty else 80
 
