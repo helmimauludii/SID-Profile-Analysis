@@ -61,22 +61,14 @@ st.sidebar.header("⚙️ Filter Data")
 
 sorted_months = sorted(df['Month'].unique())
 
-select_all = st.sidebar.checkbox("Pilih Semua Bulan", value=True)
-
-if select_all:
-    selected_months = st.sidebar.multiselect(
-        "Pilih Bulan:",
-        options=sorted_months,
-        default=sorted_months,
-        format_func=lambda x: x.strftime('%B %Y')
-    )
-else:
-    selected_months = st.sidebar.multiselect(
-        "Pilih Bulan:",
-        options=sorted_months,
-        default=[sorted_months[0]] if sorted_months else [],
-        format_func=lambda x: x.strftime('%B %Y')
-    )
+# ✅ SIMPLIFIED MULTISELECT (tanpa checkbox)
+selected_months = st.sidebar.multiselect(
+    "Pilih Bulan:",
+    options=sorted_months,
+    default=sorted_months,
+    format_func=lambda x: x.strftime('%B %Y'),
+    placeholder="Pilih bulan..."
+)
 
 selected_metric = st.sidebar.radio(
     "Pilih Metrik:",
